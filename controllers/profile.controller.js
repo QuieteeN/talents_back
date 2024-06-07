@@ -88,3 +88,47 @@ exports.getEmployerProfile = async (req, res) => {
         });
     }
 };
+
+exports.getEmployerProfileById = async (req, res) => {
+    try {
+        const userId = req.userId; // Предполагаем, что authMiddleware добавляет userId в req
+        const employerId = req.params.id;
+
+        const employer = await Employer.findByPk(employerId, {
+            include: [
+                {
+                    model: EmployerInfo,
+                    as: 'info',
+                    include: [
+                        {
+                            model: Address,
+                            as: 'address',
+                        },
+                        {
+                            model: Social,
+                            as: 'socials',
+                            through: {
+                                attributes: [],
+                            }
+                        }
+                    ]
+                }
+            ]
+        });
+        if (!employer) {
+            return res.status(404).send({
+                message: 'Employer Not Found.',
+                status: 404
+            });
+        }
+        res.status(200).send({
+            employer,
+            status: 200
+        });
+    } catch (error) {
+        res.status(500).send({
+            message: error.message,
+            status: 500
+        });
+    }
+};
