@@ -8,5 +8,8 @@ router.use('/employerInfo', require('./employerInfo.routes'));
 router.use('/studentInfo', require('./studentInfo.routes'));
 router.use('/vacancy', require('./vacancy.routes'));
 router.use('/cv', require('./cv.routes'));
+router.use('/search', require('./search.routes'));
+router.use('/keySkills', require('./keySkill.routes'))
+router.use('/languages', require('./language.routes'))
 
 module.exports = router;

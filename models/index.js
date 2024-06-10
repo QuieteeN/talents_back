@@ -32,6 +32,7 @@ db.Institute = require('./institute.model')(sequelize, DataTypes);
 db.MovingType = require('./movingType.model')(sequelize, DataTypes);
 db.BusinessTripType = require('./businessTripType.model')(sequelize, DataTypes);
 db.CV = require('./cv.model')(sequelize, DataTypes);
+db.Response = require('./response.model')(sequelize, DataTypes);
 
 // Define associations
 db.Student.hasOne(db.StudentInfo, { as: 'info', foreignKey: 'studentId' });
@@ -113,6 +114,13 @@ db.Language.belongsToMany(db.CV, { through: 'CVLanguages', as: 'cvs', foreignKey
 
 db.CV.belongsToMany(db.LicenseCategory, { through: 'CVLicenseCategories', as: 'licenseCategories', foreignKey: 'cvId' });
 db.LicenseCategory.belongsToMany(db.CV, { through: 'CVLicenseCategories', as: 'cvs', foreignKey: 'licenseCategoryId' });
+
+// Response
+db.Response.belongsTo(db.Vacancy, { foreignKey: 'vacancyId', as: 'vacancy' });
+db.Vacancy.hasMany(db.Response, { foreignKey: 'vacancyId', as: 'responses' });
+
+db.Response.belongsTo(db.CV, { foreignKey: 'cvId', as: 'cv' });
+db.CV.hasMany(db.Response, { foreignKey: 'cvId', as: 'responses' });
 
 
 db.sequelize.sync().then(async () => {
