@@ -11,5 +11,6 @@ router.use('/cv', require('./cv.routes'));
 router.use('/search', require('./search.routes'));
 router.use('/keySkills', require('./keySkill.routes'))
 router.use('/languages', require('./language.routes'))
+router.use('/response', require('./response.routes'))
 
 module.exports = router;

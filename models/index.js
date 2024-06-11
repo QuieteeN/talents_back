@@ -33,6 +33,7 @@ db.MovingType = require('./movingType.model')(sequelize, DataTypes);
 db.BusinessTripType = require('./businessTripType.model')(sequelize, DataTypes);
 db.CV = require('./cv.model')(sequelize, DataTypes);
 db.Response = require('./response.model')(sequelize, DataTypes);
+db.Message = require('./message.model')(sequelize, DataTypes);
 
 // Define associations
 db.Student.hasOne(db.StudentInfo, { as: 'info', foreignKey: 'studentId' });
@@ -121,6 +122,10 @@ db.Vacancy.hasMany(db.Response, { foreignKey: 'vacancyId', as: 'responses' });
 
 db.Response.belongsTo(db.CV, { foreignKey: 'cvId', as: 'cv' });
 db.CV.hasMany(db.Response, { foreignKey: 'cvId', as: 'responses' });
+
+// Message
+db.Message.belongsTo(db.Response, { foreignKey: 'responseId', as: 'response' });
+db.Response.hasMany(db.Message, { foreignKey: 'responseId', as: 'messages' });
 
 
 db.sequelize.sync().then(async () => {
