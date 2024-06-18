@@ -1,5 +1,45 @@
 const { Op } = require('sequelize');
 const db = require('../models');
+const jwt = require('jsonwebtoken');
+
+const setVacancyIsLiked = async (vacancy, studentId) => {
+    const existingLike = await db.StudentVacancy.findOne({
+        where: {
+            vacancyId: vacancy.id, studentId
+        }
+    })
+
+
+    let isLiked = false
+    if (existingLike) {
+        isLiked = true;
+    }
+
+    return {
+        ...vacancy.toJSON(),
+        isLiked: isLiked,
+    };
+}
+
+
+const setCvIsLiked = async (cv, employerId) => {
+    const existingLike = await db.EmployerCV.findOne({
+        where: {
+            cvId: cv.id,
+            employerId
+        }
+    })
+
+    let isLiked = false
+    if (existingLike) {
+        isLiked = true
+    }
+    return {
+        ...cv.toJSON(),
+        isLiked: isLiked
+    }
+}
+
 
 const searchVacancies = async (req, res) => {
     const { name, city, specialization, salaryFrom, employmentType, schedule, keySkills, licenses, languages, orderBy } = req.query;
@@ -77,7 +117,22 @@ const searchVacancies = async (req, res) => {
             include: includeClause,
             order: orderClause
         });
-        res.json({ vacancies });
+
+
+        const token = req.cookies.token;
+        if (token) {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            const promises = vacancies.map(async (vacancy) => {
+                const vacancyWithIsLiked = await setVacancyIsLiked(vacancy, decoded.id);
+                return vacancyWithIsLiked;
+            });
+
+            const outVacancies = await Promise.all(promises);
+
+            res.json({ vacancies: outVacancies });
+        } else {
+            res.json({ vacancies });
+        }
     } catch (error) {
         console.log(error);
         res.status(500).json({ error: error.message });
@@ -176,7 +231,21 @@ const searchCVs = async (req, res) => {
             include: includeClause,
             order: orderClause
         });
-        res.json({ cvs });
+
+        const token = req.cookies.token;
+        if (token) {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            const promises = cvs.map(async (cv) => {
+                const cvWithIsLiked = await setCvIsLiked(cv, decoded.id);
+                return cvWithIsLiked;
+            });
+
+            const outCvs = await Promise.all(promises);
+
+            res.json({ cvs: outCvs });
+        } else {
+            res.json({ cvs });
+        }
     } catch (error) {
         console.log(error);
         res.status(500).json({ error: error.message });
